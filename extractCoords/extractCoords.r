@@ -18,7 +18,7 @@ extractEXt <- function(site,shape){
 
 # this function converts the shape object to about 10 x 10 km raster 
 # and that to points and writes the coordinates of the points to a .txt file
-gridPoints <- function(site, shape) {
+gridPoints <- function(site, shape,resolution) {
   
   test_ext <- extractEXt(site, shape)
   
@@ -38,8 +38,8 @@ gridPoints <- function(site, shape) {
     st_set_crs(4326)
   
   # raster height and width, 10 km grid
-  raster_width <- round(st_distance(sw, se)/10000)
-  raster_height <- round(st_distance(sw, nw)/10000)
+  raster_width <- round(st_distance(sw, se)/resolution)
+  raster_height <- round(st_distance(sw, nw)/resolution)
   
   # converts shapefile to a raster
   r <- raster(as(shape, "Spatial"), ncols = raster_width, nrows = raster_height)

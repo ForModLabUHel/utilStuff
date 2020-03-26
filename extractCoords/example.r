@@ -12,5 +12,5 @@ aoi_UNAC <- st_read("inputs/UNAC.shp")
 
 
 #### Extract coordinates at 10KMgrid
-gridPoints("ALTRI",aoi_ALTRI)
-gridPoints("FDRP",aoi_FDRP)
+gridPoints("ALTRI",aoi_ALTRI,10000)
+gridPoints("FDRP",aoi_FDRP,10000)
