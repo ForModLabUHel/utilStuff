@@ -2,15 +2,8 @@ library(data.table)
 library(sf)
 library(raster)
 library(dplyr)
+# library(lwgeom)
 
-# read in the polygon shape files 
-aoi_ALTRI <- st_read("inputs/ALTRI.shp")
-aoi_FDRP <- st_read("inputs/FDRP.shp")
-aoi_FDSM <- st_read("inputs/FDSM.shp")
-aoi_FVS <- st_read("inputs/FVS.shp")
-aoi_INCDS <- st_read("inputs/INCDS.shp")
-aoi_PAYCO <- st_read("inputs/PAYCO.shp")
-aoi_UNAC <- st_read("inputs/UNAC.shp")
 
 # this is the function that extracts the extreme point coordinates
 # "site" is the name of the site, "shape" is the shape file
@@ -21,15 +14,7 @@ extractEXt <- function(site,shape){
   return(coordsTab)
 }
 
-coordsTab <- data.table()
 
-coordsTab <- rbind(coordsTab,extractEXt("ALTRI",aoi_ALTRI))
-coordsTab <- rbind(coordsTab,extractEXt("FDRP", aoi_FDRP))
-coordsTab <- rbind(coordsTab,extractEXt("FDSM", aoi_FDSM))
-coordsTab <- rbind(coordsTab,extractEXt("FVS", aoi_FVS))
-coordsTab <- rbind(coordsTab,extractEXt("INCDS", aoi_INCDS))
-coordsTab <- rbind(coordsTab,extractEXt("PAYCO", aoi_PAYCO))
-coordsTab <- rbind(coordsTab,extractEXt("UNAC", aoi_UNAC))
 
 # this function converts the shape object to about 10 x 10 km raster 
 # and that to points and writes the coordinates of the points to a .txt file
@@ -67,4 +52,6 @@ gridPoints <- function(site, shape) {
   namestring <- paste("outputs/gridPoints_", site, ".txt", sep = "")
   write.table(grid_points[,1:2], namestring, row.names = FALSE)
 }
+
+
 
