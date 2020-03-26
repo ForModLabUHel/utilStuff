@@ -3,7 +3,7 @@ library(sf)
 library(raster)
 library(dplyr)
 # library(lwgeom)
-
+# test
 
 # this is the function that extracts the extreme point coordinates
 # "site" is the name of the site, "shape" is the shape file
