@@ -3,10 +3,9 @@ library(sf)
 library(raster)
 library(dplyr)
 # library(lwgeom)
-# test
 
 # this is the function that extracts the extreme point coordinates
-# "site" is the name of the site, "shape" is the shape file
+# "site" is the name of the site, "shape" is the shape object
 extractEXt <- function(site,shape){
   coordsTab <- data.table(as.matrix(extent(shape)))
   coordsTab$coord <- c("x","y")
@@ -16,9 +15,12 @@ extractEXt <- function(site,shape){
 
 
 
-# this function converts the shape object to about 10 x 10 km raster 
+# this function converts the shape object to a raster 
 # and that to points and writes the coordinates of the points to a .txt file
-gridPoints <- function(site, shape,resolution) {
+# site = the name or ID of the site
+# shape = the shape object of the site
+# resolution = the resolution of the grid in m
+gridPoints <- function(site, shape, resolution) {
   
   test_ext <- extractEXt(site, shape)
   
