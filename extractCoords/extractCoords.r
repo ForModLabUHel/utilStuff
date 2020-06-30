@@ -16,11 +16,10 @@ extractEXt <- function(site,shape){
 
 
 # this function converts the shape object to a raster 
-# and that to points and writes the coordinates of the points to a .txt file
 # site = the name or ID of the site
 # shape = the shape object of the site
 # resolution = the resolution of the grid in m
-gridPoints <- function(site, shape, resolution) {
+toRaster <- function(site, shape, resolution) {
   
   test_ext <- extractEXt(site, shape)
   
@@ -47,13 +46,14 @@ gridPoints <- function(site, shape, resolution) {
   r <- raster(as(shape, "Spatial"), ncols = raster_width, nrows = raster_height)
   rr <- rasterize(as(shape, "Spatial"), r, getCover = FALSE)
   
-  # converts the raster to spatial points
-  grid_points <- rasterToPoints(rr)
-  
-  # writes the coordinates of the points to txt-file
-  namestring <- paste("outputs/gridPoints_", site, ".txt", sep = "")
-  write.table(grid_points[,1:2], namestring, row.names = FALSE)
+  return(rr)
 }
 
+# converts the raster to spatial points
+#grid_points <- rasterToPoints(rr)
+
+# writes the coordinates of the points to txt-file
+#namestring <- paste("outputs/gridPoints_", site, ".txt", sep = "")
+#write.table(grid_points[,1:2], namestring, row.names = FALSE)
 
 
