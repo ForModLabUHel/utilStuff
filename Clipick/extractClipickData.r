@@ -48,7 +48,11 @@ getWD <- function(site, shape, res, sY=1951, sM=1, sD=1, eY=2100, eM=12, eD=31) 
     result <- getWeatherData(lon, lat, sY, sM, sD, eY, eM, eD)
   
     # weather datas as data.frame
-    wD <- data.frame(t(sapply(result,c)), row.names = TRUE)
+    wD <- data.frame(t(sapply(result,c)))
+    
+    # fix the column names
+    colnames(wD) <- wD[1,]
+    wD <- wD[-1,]
 
     wDs[[i]] <- wD
   }
@@ -97,3 +101,4 @@ climRaster <- function(uniqueWDs, wDs, site, shape, res) {
   
   return(climID_raster)
 }
+
