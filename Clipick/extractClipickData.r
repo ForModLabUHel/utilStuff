@@ -36,26 +36,33 @@ getWD <- function(site, shape, res, sY=1951, sM=1, sD=1, eY=2100, eM=12, eD=31) 
   myRaster <- toRaster(site, shape, res)
   
   grid_points <- rasterToPoints(myRaster)
-
+  
   # this is the number of coordinate points
   nDFs <- nrow(grid_points)
 
   for (i in 1:nDFs) {
     lon <- grid_points[i,1]
     lat <- grid_points[i,2]
-  
+    
     # getting the weather data from clipick
     result <- getWeatherData(lon, lat, sY, sM, sD, eY, eM, eD)
-  
-    # weather datas as data.frame
-    wD <- data.frame(t(sapply(result,c)))
+    
+    # weather datas as data.table
+    wD <- data.table(t(sapply(result,c)))
     
     # fix the column names
-    colnames(wD) <- wD[1,]
+    names(wD) <- as.character(wD[1,])
     wD <- wD[-1,]
-
+    
+    # this is the number of the day
+    wD$rday <- 1:nrow(wD)
+    
+    # this is the id of the grid point
+    wD$id <- i
+    
     wDs[[i]] <- wD
   }
+  
   return(wDs)
 }
 
