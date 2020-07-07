@@ -17,14 +17,16 @@ myRaster <- toRaster("ALTRI",aoi_ALTRI,10000)
 grid_points <- rasterToPoints(myRaster)
 
 # extract the Altri weather data from clipick from 1.1.2000-2.1.2000 at 10 km grid
-wDs <- getWD("ALTRI", aoi_ALTRI, 10000, 2000, 1, 1, 2000, 2, 2)
+wDs <- getWD("ALTRI", aoi_ALTRI, 100000, 2000, 1, 1, 2000, 2, 2)
 
-# Find the unique dataframes
+
+# Find the unique data tables
 # weather data for the site is here 
-# note: if there is similar weather data in different grid points, the id numbers
-# might skip some!
-weather_data <- rbindlist(unique(wDs))
+weather_data <- unique(wDs)
 
 # raster of climID:s is here
-climID_raster <- climRaster(weather_data, wDs, "ALTRI", aoi_ALTRI, 80000)
+climID_raster <- climRaster(weather_data, wDs, "ALTRI", aoi_ALTRI, 10000)
+
+# weather data as one data.table, climID as "id"
+weather_data_table <- rbindlist(weather_data, idcol="id")
 
