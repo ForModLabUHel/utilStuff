@@ -17,7 +17,7 @@ myRaster <- toRaster("ALTRI",aoi_ALTRI,10000)
 grid_points <- rasterToPoints(myRaster)
 
 # extract the Altri weather data from clipick from 1.1.2000-2.1.2000 at 10 km grid
-wDs <- getWD("ALTRI", aoi_ALTRI, 100000, 2000, 1, 1, 2000, 2, 2)
+wDs <- getWD("ALTRI", aoi_ALTRI, 10000, 2000, 1, 1, 2000, 2, 2)
 
 # Find the unique dataframes
 # weather data for the site is here 
