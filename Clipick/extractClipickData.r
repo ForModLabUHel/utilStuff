@@ -57,9 +57,6 @@ getWD <- function(site, shape, res, sY=1951, sM=1, sD=1, eY=2100, eM=12, eD=31) 
     # this is the number of the day
     wD$rday <- 1:nrow(wD)
     
-    # this is the id of the grid point
-    wD$id <- i
-    
     wDs[[i]] <- wD
   }
   
