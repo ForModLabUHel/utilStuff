@@ -51,3 +51,18 @@ fNew =b*b * (g2 - g1**2) - pdvar
 abc<-cbind(a,b,c)
 abc
 }
+
+Fweibull.v<-function(dm,pdvar){
+  if (length(dm)==1){abc<-Fweibull(dm,pdvar)}
+  else{
+    n=length(dm)
+    abc<-data.frame(a=rep(NA,n),
+                    b=rep(NA,n),
+                    c=rep(NA,n))
+    for (i in 1:n) {
+      abc[i,]<-Fweibull(dm[i],pdvar[i])
+    }
+  }
+  return(abc)
+}
+

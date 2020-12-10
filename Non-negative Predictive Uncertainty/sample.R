@@ -8,7 +8,8 @@ source('rmvweisd.R') # Multivariate Weibull using shape and decay parameters
 
 
 # Moment-based parameter recovery for the parameters in Weibull pdf
-abc<-data.frame(rbind(Fweibull(2,10),Fweibull(5,2),Fweibull(10,3)))
+# abc<-data.frame(rbind(Fweibull(2,10),Fweibull(5,2),Fweibull(10,3)))
+abc<-Fweibull.v(c(2,5,10),c(10,2,3))
 
 hist(rweibull3(1000,
           thres=0,
