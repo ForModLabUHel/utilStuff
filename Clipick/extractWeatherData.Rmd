@@ -10,6 +10,7 @@ output: html_document
 library(reticulate)
 
 # specify here the path of python in your computer
+# the code works with python 2 but not with python 3
 use_python("C:/Python27") 
 ```
 
@@ -21,6 +22,9 @@ import StringIO
 import urllib2
 import urllib
 import time
+
+def plus(a, b):
+   return a+b
 
 Longitude           = 8.385980
 Latitude            = 48.255170
