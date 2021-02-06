@@ -1,5 +1,5 @@
 # example
-source("Error decomposition/Error decomposition.R")
+source("ErrorDecomposition/ErrorDecomposition.R")
 read.csv("outdata0.csv")
 resultV1<- MSEdec("V",allData0[which(allData0$var=="V")]$obs,allData0[which(allData0$var=="V")]$sim,method = 1)
 resultV2<- MSEdec("V",allData0[which(allData0$var=="V")]$obs,allData0[which(allData0$var=="V")]$sim,method = 2)
