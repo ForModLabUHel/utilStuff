@@ -1,5 +1,5 @@
-source("extractCoords.r")
-source("extractClipickData.r")
+source("extractCoords/extractCoords.r")
+source("Clipick/extractClipickData.r")
 
 
 # read in the polygon shape files 
