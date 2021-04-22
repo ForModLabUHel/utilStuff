@@ -157,6 +157,8 @@ climIDlist <- function(uniqueWDs, wDs, ids) {
   
   climIDs <- cbind(ids, dfIDs)
   
+  colnames(climIDs) <- c("id", "climID")
+  
   return(climIDs)
 }
 
