@@ -185,7 +185,7 @@ prebasWeather <- function(wDs) {
     wDs[[i]]$VPD <- wDs[[i]]$SVP*(1-(as.double(wDs[[i]]$hursmax)+as.double(wDs[[i]]$hursmin))/2/100)/1000
     
     # PAR in right unit
-    wDs[[i]]$PAR <- as.double(wDs[[i]]$rss)*4.968
+    wDs[[i]]$PAR <- as.double(wDs[[i]]$rss)*0.44*4.968
     
     # Precip 
     wDs[[i]]$Precip <- as.double(wDs[[i]]$pr)
