@@ -137,5 +137,5 @@ def processcsv():
         dff = pd.concat(dfs, axis=1)
         dff.to_csv(os.path.join(file_path,"data.csv"))
     except:
-        dfs[0].to_csv(os.path.join(file_path,"data.csv.gz"), compression="gzip")
+        dfs[0].to_csv(os.path.join(file_path,"data.csv"))
 processcsv()
