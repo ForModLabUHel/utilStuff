@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Aug 19 11:57:25 2021
-@author: vhketola
+@author: vhketola & Checked by Xianglin
 """
-
 import cdsapi
 import os
 import numpy as np
@@ -17,26 +16,9 @@ import shapefile
 ###You must also agree to the terms and conditions:
 ###https://cds.climate.copernicus.eu/cdsapp/#!/terms/cmip6-wps
 c = cdsapi.Client()
-
 ###Specify a file path here
 file_path = os.getcwd() + "\\downloads\\"
-#file_path = "D:\\User\\Desktop\\Work\\downloads\\"
-
-###Generating area from shapefiles
-shape = shapefile.Reader(os.path.join(file_path,"attachments_WGS84//finland//AOI/AOI_FDTEP_T35VLK_VLJ_20210221_WGS84.shp"))
-feature = shape.shapeRecords()[0]
-shapedata = feature.shape.__geo_interface__ #lon,lat format
-area = [-91, 181, 91, -181] # list with form North, West, South, East 
-for f in shapedata["coordinates"][0]: # set area equal to the shapefile bounds, rounded accordingly
-    if f[0] > area[0]:
-        area[0] = int(np.ceil(f[0]))
-    elif f[0] < area[2]:
-        area[2] = int(np.floor(f[0]))
-    if f[1] < area[1]:
-        area[1] = int(np.floor(f[1]))
-    elif f[1] > area[3]:
-        area[3] = int(np.ceil(f[1]))
-print(area)
+area = [62, 23, 61, 25] # list with form North, West, South, East 
 
 ###Specify parameters here or call function download() with them. Follow this example format.
 experiment = "ssp1_2_6"
@@ -135,7 +117,7 @@ def processcsv():
     print(dfs)
     try:
         dff = pd.concat(dfs, axis=1)
-        dff.to_csv(os.path.join(file_path,"data.csv"))
+        dff.to_csv("data.csv")
     except:
-        dfs[0].to_csv(os.path.join(file_path,"data.csv"))
+        dfs[0].to_csv("data.csv")
 processcsv()
