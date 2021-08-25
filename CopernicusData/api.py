@@ -139,3 +139,28 @@ def processcsv():
     except:
         dfs[0].to_csv(os.path.join(file_path,"data.csv"))
 processcsv()
+
+def formatcsv():
+    df = pd.read_csv(os.path.join(file_path,"data.csv"))
+    df.insert(3,"date",pd.to_datetime(df["time"]))
+    
+    clims = df.groupby(["date"]).count().iloc[0,0] + 1
+    x = [i for i in range(1,clims)]
+    for i in range(len(df) - len(x)):
+        x.append(x[i])
+    df.insert(0,"climID",x)
+    df = df.sort_values(["climID","date"])
+    
+    df["date"] = df["date"].dt.strftime("%m/%d/%Y")
+    df["doy"] = pd.to_datetime(df["time"]).dt.dayofyear
+    del df["time"]
+    df = df.set_index("doy") # optional
+    df.to_csv(os.path.join(file_path,"data2.csv"))
+    
+    ### Create a df suitable for creating a raster
+    dftemp = df[["climID","lat","lon"]]
+    vals = {"climID":[i for i in range(1,clims)]
+            , "lat":[dftemp[dftemp["climID"]==i].iloc[0][1] for i in range(1,clims)]
+            , "lon":[dftemp[dftemp["climID"]==i].iloc[0][2] for i in range(1,clims)]}
+    dfraster = pd.DataFrame(vals)
+formatcsv()
