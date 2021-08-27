@@ -5,7 +5,6 @@ Created on Thu Aug 19 11:57:25 2021
 """
 import cdsapi
 import os
-import math
 import numpy as np
 import pandas as pd
 from zipfile import ZipFile
@@ -28,19 +27,25 @@ file_path = os.getcwd() + "\\downloads\\" # using working directory
 #file_path = "D:\\User\\Desktop\\Work\\downloads\\" # using (example) absolute path
 
 ###Generating area from shapefiles
-shape = shapefile.Reader(os.path.join(file_path,"attachments_WGS84//germany//AOI//germany_weather_aoi_WGS84.shp"))
+shape = shapefile.Reader(os.path.join(file_path,"attachments_WGS84//romania//AOI//romania_weather_aoi_WGS84.shp"))
 feature = shape.shapeRecords()[0]
 shapedata = feature.shape.__geo_interface__ #lon,lat format
 area = [-91, 181, 91, -181] # list with form North, West, South, East 
 for f in shapedata["coordinates"][0]: # set area equal to the shapefile bounds, rounded strictly
     if f[0] > area[0]:
-        area[0] = math.ceil(f[0]*100)/100
+        area[0] = np.ceil(f[0])
     elif f[0] < area[2]:
-        area[2] = math.floor(f[0]*100)/100
+        area[2] = np.floor(f[0])
     if f[1] < area[1]:
-        area[1] = math.floor(f[1]*100)/100
+        area[1] = np.floor(f[1])
     elif f[1] > area[3]:
-        area[3] = math.ceil(f[1]*100)/100
+        area[3] = np.ceil(f[1])
+###Check if area is large enough considering resolution of CMIP6 data
+if (abs(area[0] - area[2]) < 1) or (abs(area[3] - area[1]) < 1):
+    area[0] += 1
+    area[1] -= 1
+    area[2] -= 1
+    area[3] += 1
 print(area)
 
 ###Specify parameters here or call function download() with them. Follow this example format.
@@ -185,12 +190,12 @@ def formatcsv(monthlyrad):
             , "lon":[dftemp[dftemp["climID"]==i].iloc[0][2] for i in range(1,clims)]}
     dfraster = pd.DataFrame(vals)
     
-    ###Call R code with rpy2 to create the raster
+    ###Call R code with rpy2 to create the raster (check packages)
     utils = importr('utils')
     utils.chooseCRANmirror(ind=1)
-    utils.install_packages("raster")
     utils.install_packages("sp")
     utils.install_packages("lattice")   
+    utils.install_packages("raster")
     pandas2ri.activate()
     ro.globalenv['rdf'] = dfraster
     ro.globalenv['file'] = os.path.join(file_path,"data.tiff")
