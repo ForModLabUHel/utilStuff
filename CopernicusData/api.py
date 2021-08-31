@@ -33,15 +33,15 @@ shapedata = feature.shape.__geo_interface__ #lon,lat format
 area = [-91, 181, 91, -181] # list with form North, West, South, East 
 for f in shapedata["coordinates"][0]: # set area equal to the shapefile bounds, rounded strictly
     if f[0] > area[0]:
-        area[0] = np.ceil(f[0])
+        area[0] = int(np.ceil(f[0]))
     elif f[0] < area[2]:
-        area[2] = np.floor(f[0])
+        area[2] = int(np.floor(f[0]))
     if f[1] < area[1]:
-        area[1] = np.floor(f[1])
+        area[1] = int(np.floor(f[1]))
     elif f[1] > area[3]:
-        area[3] = np.ceil(f[1])
+        area[3] = int(np.ceil(f[1]))
 ###Check if area is large enough considering resolution of CMIP6 data
-if (abs(area[0] - area[2]) < 1) or (abs(area[3] - area[1]) < 1):
+if (abs(area[0] - area[2]) < 2) or (abs(area[3] - area[1]) < 2):
     area[0] += 1
     area[1] -= 1
     area[2] -= 1
