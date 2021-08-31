@@ -28,7 +28,7 @@ file_path = os.getcwd() + "\\downloads\\" # using working directory
 file_path = "D:\\User\\Desktop\\Work\\downloads\\" # using (example) absolute path
 
 ###Generating area from shapefiles
-shape = shapefile.Reader(os.path.join(file_path,"attachments_WGS84//germany//AOI//germany_weather_aoi_WGS84.shp"))
+shape = shapefile.Reader(os.path.join(file_path,"attachments_WGS84//finland//AOI//AOI_FDTEP_T35VLK_VLJ_20210221_WGS84.shp"))
 feature = shape.shapeRecords()[0]
 shapedata = feature.shape.__geo_interface__ #lon,lat format
 area = [-91, 181, 91, -181] # list with form North, West, South, East 
@@ -50,7 +50,7 @@ if (abs(area[0] - area[2]) < 2) or (abs(area[3] - area[1]) < 2):
 print(area)
 
 ###Specify parameters here or call function download() with them. Follow this example format.
-experiment = "ssp1_2_6"
+experiment = "ssp2_4_5" #1_2_6, 2_4_5, 5_8_5
 variables = ["near_surface_air_temperature","near_surface_specific_humidity","precipitation"]
 model = "hadgem3_gc31_ll"
 date = "2020-01-01/2060-12-31"
@@ -212,7 +212,11 @@ def formatcsv(monthlyrad):
                     install.packages("raster")
                     library(raster)
                     print(rdf)
-                    rdf <- rasterFromXYZ(rdf)
+                    if (length(unique(rdf$y)) > 1) {
+                            rdf <- rasterFromXYZ(rdf)
+                            } else {
+                                rdf <- rasterFromXYZ(rdf, res=c(NA, 1))
+                                }
                     writeRaster(x=rdf, filename=file, overwrite = TRUE)
                     ''')
     
