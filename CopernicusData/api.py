@@ -16,6 +16,7 @@ import rpy2.robjects as ro
 from rpy2.robjects.packages import importr
 from rpy2.robjects import pandas2ri
 
+
 ###View these instructions when getting started with a new cds user:
 ###https://cds.climate.copernicus.eu/api-how-to
 ###You must also agree to the terms and conditions:
@@ -24,10 +25,10 @@ c = cdsapi.Client()
 
 ###Specify a file path here
 file_path = os.getcwd() + "\\downloads\\" # using working directory
-#file_path = "D:\\User\\Desktop\\Work\\downloads\\" # using (example) absolute path
+file_path = "D:\\User\\Desktop\\Work\\downloads\\" # using (example) absolute path
 
 ###Generating area from shapefiles
-shape = shapefile.Reader(os.path.join(file_path,"attachments_WGS84//romania//AOI//romania_weather_aoi_WGS84.shp"))
+shape = shapefile.Reader(os.path.join(file_path,"attachments_WGS84//germany//AOI//germany_weather_aoi_WGS84.shp"))
 feature = shape.shapeRecords()[0]
 shapedata = feature.shape.__geo_interface__ #lon,lat format
 area = [-91, 181, 91, -181] # list with form North, West, South, East 
@@ -189,22 +190,32 @@ def formatcsv(monthlyrad):
             , "lat":[dftemp[dftemp["climID"]==i].iloc[0][1] for i in range(1,clims)]
             , "lon":[dftemp[dftemp["climID"]==i].iloc[0][2] for i in range(1,clims)]}
     dfraster = pd.DataFrame(vals)
+    dfraster["x"] = dfraster["lat"]
+    del dfraster["lat"]
+    dfraster["y"] = dfraster["lon"]
+    del dfraster["lon"]
+    dfraster["z"] = dfraster["climID"]
+    del dfraster["climID"]
     
-    ###Call R code with rpy2 to create the raster (check packages)
+    ##Call R code with rpy2 to create the raster (check packages)
     utils = importr('utils')
     utils.chooseCRANmirror(ind=1)
     utils.install_packages("sp")
-    utils.install_packages("lattice")   
+    utils.install_packages("lattice")
     utils.install_packages("raster")
     pandas2ri.activate()
     ro.globalenv['rdf'] = dfraster
     ro.globalenv['file'] = os.path.join(file_path,"data.tiff")
     ro.r('''
+                    install.packages("sp")
+                    install.packages("Rcpp")
+                    install.packages("raster")
                     library(raster)
+                    print(rdf)
                     rdf <- rasterFromXYZ(rdf)
-                    writeRaster(x=rdf, filename=file)
+                    writeRaster(x=rdf, filename=file, overwrite = TRUE)
                     ''')
-        
+    
     ###Remove any unnecessary columns here
     del df["lat"]
     del df["lon"]
@@ -213,8 +224,53 @@ def formatcsv(monthlyrad):
     df.to_csv(os.path.join(file_path,"data.csv"))
 formatcsv(monthlyrad)
 
+def convert(): # Adapted from forPRELESinput.r by Xianglin Tian
+    df = pd.read_csv(os.path.join(file_path,"data.csv"))
+    
+    # The shortwave radiation (SW, W /m2) can be converted to PAR (mol/m2/day) 
+    # External to the earth’s atmosphere, the ratio of PAR to total solar radiation is 0.44. 
+    # Then we can use 4.56 (µmol/J or mol/MJ) to convert the unit as PRELES requests. 
+    df["PAR"] = df["rsds"]*0.44*4.56/1e6*60*60*24
+    
+    # Temperature in the atmosphere. It has units of Kelvin (K). 
+    # Temperature measured in kelvin can be converted to degrees Celsius (°C) by subtracting 273.15.
+    df["TAir"] = df["tas"]-273.15
+    
+    # Precipetation from kg m-2 s-1 or mm s-1 to mm day-1
+    df["Precip"] = df["pr"]*60*60*24
+    
+    ##' Convert specific humidity to relative humidity
+    ##' from Bolton 1980 The computation of Equivalent Potential Temperature 
+    ##' \url{http://www.eol.ucar.edu/projects/ceop/dm/documents/refdata_report/eqns.html}
+    ##' @param qair specific humidity, dimensionless (e.g. kg/kg) ratio of water mass / total air mass
+    ##' @param temp degrees C
+    ##' @param press pressure in mb
+    ##' @return rh relative humidity, ratio of actual water mixing ratio to saturation mixing ratio
+    ##' @author David LeBauer in Stack
+    def qair2rh(qair,temp,press=1013.25):
+        es = 6.112 * np.exp((17.67 * temp)/(temp + 243.5))
+        e = qair * press / (0.378 * qair + 0.622)
+        rh = e / es
+        rh[rh > 1] = 1
+        rh[rh < 0] = 0
+        return rh
+    
+    SVP = 610.7 * 10**(7.5*df["TAir"]/(237.3+df["TAir"]))
+    RH = qair2rh(df["huss"],df["TAir"])
+    df["VPD"] = SVP * (1-RH) / 1000
+    
+    del df["huss"]
+    del df["pr"]
+    del df["tas"]
+    del df["rsds"]
+    
+    df = df.set_index("climID")
+    
+    df.to_csv(os.path.join(file_path,"data.csv"))
+convert()
+
 def clean():
     for file in os.listdir(file_path):
         if file.endswith(".zip") or file.endswith(".nc") or file.endswith(".json") or file.endswith(".png"):
-            os.remove(file)
+            os.remove(os.path.join(file_path,file))
 clean()
