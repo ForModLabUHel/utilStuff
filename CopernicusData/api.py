@@ -163,9 +163,9 @@ def createcsv(file_path, shape, experiment, model, date):
             dfs[0].to_csv(os.path.join(file_path,"data.csv"))
     processcsv()
     
-    def formatcsv(monthlyrad):
+    def formatcsv(monthlyrad,experiment,date):
         df = pd.read_csv(os.path.join(file_path,"data.csv"))
-        df.insert(3,"date",pd.to_datetime(df["time"]))
+        df.insert(3,"date",pd.to_datetime(df["time"]).dt.date)
         
         ###Create climID for the different coordinates within the specified area
         clims = df.groupby(["date"]).count().iloc[0,0] + 1
@@ -175,7 +175,23 @@ def createcsv(file_path, shape, experiment, model, date):
         df.insert(0,"climID",x)
         df = df.sort_values(["climID","date"])
         
-        df["date"] = df["date"].dt.strftime("%m/%d/%Y")
+        ###Include CO2 data from csv
+        ##Meinshausen et al. GMD 2017 (https://doi.org/10.5194/gmd-10-2057-2017); 
+        ##Meinshausen et al., GMD, 2020 (https://doi.org/10.5194/gmd-2019-222)
+        co2 = pd.read_csv(os.path.join(file_path,experiment + "_co2.csv"))
+        # Code can also be added here to determine which hemisphere we are in automatically
+        #int(date[0:4])  int(date[11:15])
+        co2 = co2[["Year","Northern Hemisphere"]]
+        co2 = co2.set_index("Year")
+        co2 = co2.loc[int(date[0:4]):int(date[11:15]),"Northern Hemisphere"]
+        co2.index = pd.to_datetime(co2.index, format='%Y').date
+        df = pd.merge(df,co2,left_on="date",right_index=True,how="left")
+        df["Northern Hemisphere"] = df["Northern Hemisphere"].ffill()
+        df["CO2"] = df["Northern Hemisphere"]
+        del df["Northern Hemisphere"]
+        df = df.sort_values(["climID","date"])
+        
+        df["date"] = pd.to_datetime(df["date"]).dt.strftime("%m/%d/%Y")
         df = df.set_index("date")
         #df["doy"] = pd.to_datetime(df["time"]).dt.dayofyear
         del df["time"]
@@ -189,7 +205,7 @@ def createcsv(file_path, shape, experiment, model, date):
             df["rsds"] = df["rsds"].backfill()
             df = df.dropna(axis=0)
             df = df.reset_index()
-            
+        
         ###Create a climID df for the raster
         dftemp = df[["climID","lat","lon"]]
         vals = {"climID":[i for i in range(1,clims)]
@@ -227,7 +243,7 @@ def createcsv(file_path, shape, experiment, model, date):
         del df["date"]
         df = df.set_index("climID")
         df.to_csv(os.path.join(file_path,"data.csv"))
-    formatcsv(monthlyrad)
+    formatcsv(monthlyrad,experiment,date)
     
     def convert(): # Adapted from forPRELESinput.r by Xianglin Tian
         df = pd.read_csv(os.path.join(file_path,"data.csv"))
