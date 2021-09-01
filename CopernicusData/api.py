@@ -25,15 +25,15 @@ c = cdsapi.Client()
 ###Specify the filepath here
 file_path = os.getcwd() + "\\downloads\\" # using working directory
 file_path = "D:\\User\\Desktop\\Work\\downloads\\" # using (example) absolute path
-###Specify the shapefile here
-shape = shapefile.Reader(os.path.join(file_path,"attachments_WGS84//germany//AOI//germany_weather_aoi_WGS84.shp"))
+###Specify the shapefile country here
+shapename = "germany"
 ###Specify the parameters here
 experiment = "ssp1_2_6" #1_2_6, 2_4_5, 5_8_5
 model = "hadgem3_gc31_ll"
 date = "2020-01-01/2060-12-31"
 
 
-def createcsv(file_path, shape, experiment, model, date):
+def createcsv(file_path, shapename, experiment, model, date):
     ###Determine whether to include monthly radiation data (daily not available)
     monthlyrad = True
     ###Variables with daily data to include
@@ -42,6 +42,7 @@ def createcsv(file_path, shape, experiment, model, date):
                  ,"precipitation"]
     
     ###Extract area for CMIP6 from the shapefile
+    shape = shapefile.Reader(os.path.join(file_path,"attachments_WGS84//" + shapename + "//AOI//" + shapename + "_weather_aoi_WGS84.shp"))
     feature = shape.shapeRecords()[0]
     shapedata = feature.shape.__geo_interface__ #lon,lat format
     area = [-91, 181, 91, -181] # list with form North, West, South, East 
@@ -135,7 +136,7 @@ def createcsv(file_path, shape, experiment, model, date):
                 df = pd.DataFrame({varname:data.flatten()},index=idx)
                 dfs.append(df)
         return pd.concat(dfs)
-    def processcsv():
+    def processcsv(shapename,experiment):
         first = True
         varnames = []
         dfs = []
@@ -158,13 +159,13 @@ def createcsv(file_path, shape, experiment, model, date):
         # print(dfs)
         try:
             dff = pd.concat(dfs, axis=1)
-            dff.to_csv(os.path.join(file_path,"data.csv"))
+            dff.to_csv(os.path.join(file_path, shapename + "_" + experiment + ".csv"))
         except:
-            dfs[0].to_csv(os.path.join(file_path,"data.csv"))
-    processcsv()
+            dfs[0].to_csv(os.path.join(file_path,shapename + "_" + experiment + ".csv"))
+    processcsv(shapename,experiment)
     
-    def formatcsv(monthlyrad,experiment,date):
-        df = pd.read_csv(os.path.join(file_path,"data.csv"))
+    def formatcsv(monthlyrad,shapename,experiment,date):
+        df = pd.read_csv(os.path.join(file_path,shapename + "_" + experiment + ".csv"))
         df.insert(3,"date",pd.to_datetime(df["time"]).dt.date)
         
         ###Create climID for the different coordinates within the specified area
@@ -224,7 +225,7 @@ def createcsv(file_path, shape, experiment, model, date):
         utils.chooseCRANmirror(ind=1)
         pandas2ri.activate()
         ro.globalenv['rdf'] = dfraster
-        ro.globalenv['file'] = os.path.join(file_path,"data.tiff")
+        ro.globalenv['file'] = os.path.join(file_path, shapename + "_" + experiment + ".tiff")
         ro.r('''
                         install.packages("raster")
                         library(raster)
@@ -242,11 +243,11 @@ def createcsv(file_path, shape, experiment, model, date):
         del df["lon"]
         del df["date"]
         df = df.set_index("climID")
-        df.to_csv(os.path.join(file_path,"data.csv"))
-    formatcsv(monthlyrad,experiment,date)
+        df.to_csv(os.path.join(file_path,shapename + "_" + experiment + ".csv"))
+    formatcsv(monthlyrad,shapename,experiment,date)
     
-    def convert(): # Adapted from forPRELESinput.r by Xianglin Tian
-        df = pd.read_csv(os.path.join(file_path,"data.csv"))
+    def convert(shapename,experiment): # Adapted from forPRELESinput.r by Xianglin Tian
+        df = pd.read_csv(os.path.join(file_path,shapename + "_" + experiment + ".csv"))
         
         # The shortwave radiation (SW, W /m2) can be converted to PAR (mol/m2/day) 
         # External to the earth’s atmosphere, the ratio of PAR to total solar radiation is 0.44. 
@@ -287,8 +288,8 @@ def createcsv(file_path, shape, experiment, model, date):
         
         df = df.set_index("climID")
         
-        df.to_csv(os.path.join(file_path,"data.csv"))
-    convert()
+        df.to_csv(os.path.join(file_path,shapename + "_" + experiment + ".csv"))
+    convert(shapename, experiment)
     
     ###Remove leftover downloaded files
     def clean():
@@ -297,4 +298,4 @@ def createcsv(file_path, shape, experiment, model, date):
                 os.remove(os.path.join(file_path,file))
     clean()
 
-createcsv(file_path, shape, experiment, model, date)
+createcsv(file_path, shapename, experiment, model, date)
