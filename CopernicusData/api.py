@@ -24,7 +24,7 @@ from rpy2.robjects import pandas2ri
 c = cdsapi.Client()
 ###Specify the filepath here
 file_path = os.getcwd() + "\\downloads\\" # using working directory
-file_path = "D:\\User\\Desktop\\Work\\downloads\\" # using (example) absolute path
+# file_path = "D:\\User\\Desktop\\Work\\downloads\\" # using (example) absolute path
 ###Specify the shapefile country here
 shapename = "germany"
 ###Specify the parameters here
@@ -55,8 +55,9 @@ def createcsv(file_path, shapename, experiment, model, date):
             area[1] = int(np.floor(f[0]))
         elif f[0] > area[3]:
             area[3] = int(np.ceil(f[0]))
+    # print(area)
     ###Check if area is large enough considering resolution of CMIP6 data
-    if (abs(area[0] - area[2]) <= 1) or (abs(area[3] - area[1]) <= 1):
+    if (abs(area[0] - area[2]) < 4) or (abs(area[3] - area[1]) < 4):
         area[0] += 1
         area[1] -= 1
         area[2] -= 1
@@ -180,21 +181,24 @@ def createcsv(file_path, shapename, experiment, model, date):
         ##Meinshausen et al. GMD 2017 (https://doi.org/10.5194/gmd-10-2057-2017); 
         ##Meinshausen et al., GMD, 2020 (https://doi.org/10.5194/gmd-2019-222)
         co2 = pd.read_csv(os.path.join(file_path,experiment + "_co2.csv"))
-        # Code can also be added here to determine which hemisphere we are in automatically
-        #int(date[0:4])  int(date[11:15])
-        co2 = co2[["Year","Northern Hemisphere"]]
+        # Start and end dates according to format: int(date[0:4])  int(date[11:15])
+        
+        ###For each row, CO2 is chosen according to year and latitude 
         co2 = co2.set_index("Year")
-        co2 = co2.loc[int(date[0:4]):int(date[11:15]),"Northern Hemisphere"]
+        co2 = co2.loc[int(date[0:4]):int(date[11:15]),["Northern Hemisphere","Southern Hemisphere"]]
         co2.index = pd.to_datetime(co2.index, format='%Y').date
         df = pd.merge(df,co2,left_on="date",right_index=True,how="left")
         df["Northern Hemisphere"] = df["Northern Hemisphere"].ffill()
-        df["CO2"] = df["Northern Hemisphere"]
+        df["Southern Hemisphere"] = df["Southern Hemisphere"].ffill()
+        df["Northern Hemisphere"] = df["Northern Hemisphere"].where(df["lat"] > 0)
+        df["Southern Hemisphere"] = df["Southern Hemisphere"].where(df["lat"] <= 0)
+        df["CO2"] = df["Northern Hemisphere"].fillna(df["Southern Hemisphere"])
         del df["Northern Hemisphere"]
+        del df["Southern Hemisphere"]
         df = df.sort_values(["climID","date"])
         
         df["date"] = pd.to_datetime(df["date"]).dt.strftime("%m/%d/%Y")
         df = df.set_index("date")
-        #df["doy"] = pd.to_datetime(df["time"]).dt.dayofyear
         del df["time"]
         
         ###Shift all monthly data 
@@ -213,12 +217,13 @@ def createcsv(file_path, shapename, experiment, model, date):
                 , "lat":[dftemp[dftemp["climID"]==i].iloc[0][1] for i in range(1,clims)]
                 , "lon":[dftemp[dftemp["climID"]==i].iloc[0][2] for i in range(1,clims)]}
         dfraster = pd.DataFrame(vals)
-        dfraster["x"] = dfraster["lat"]
+        dfraster["y"] = dfraster["lat"]
         del dfraster["lat"]
-        dfraster["y"] = dfraster["lon"]
+        dfraster["x"] = dfraster["lon"]
         del dfraster["lon"]
         dfraster["z"] = dfraster["climID"]
         del dfraster["climID"]
+        dfraster = dfraster[["x","y","z"]]
         
         ##Call R code with rpy2 to create the raster (check packages)
         utils = importr('utils')
@@ -227,10 +232,9 @@ def createcsv(file_path, shapename, experiment, model, date):
         ro.globalenv['rdf'] = dfraster
         ro.globalenv['file'] = os.path.join(file_path, shapename + "_" + experiment + ".tiff")
         ro.r('''
-                        install.packages("raster")
                         library(raster)
                         print(rdf)
-                        if (length(unique(rdf$y)) > 1) {
+                        if (length(unique(rdf$y)) > 1) { # R throws an error if there are no unique y values
                                 rdf <- rasterFromXYZ(rdf)
                                 } else {
                                     rdf <- rasterFromXYZ(rdf, res=c(NA, 1))
@@ -287,6 +291,7 @@ def createcsv(file_path, shapename, experiment, model, date):
         del df["rsds"]
         
         df = df.set_index("climID")
+        df = df[["PAR", "TAir", "Precip", "VPD", "CO2"]]
         
         df.to_csv(os.path.join(file_path,shapename + "_" + experiment + ".csv"))
     convert(shapename, experiment)
