@@ -22,15 +22,29 @@ from rpy2.robjects import pandas2ri
 ###You must also agree to the terms and conditions:
 ###https://cds.climate.copernicus.eu/cdsapp/#!/terms/cmip6-wps
 c = cdsapi.Client()
-###Specify the filepath here
-file_path = os.getcwd() + "\\downloads\\" # using working directory
+
+###After importing this file, call the function to run:
+# createcsv(file_path, shapename, experiment, model, date)
+
+###Variable examples:
+###Specify the filepath
+# file_path = os.getcwd() + "\\downloads\\" # using working directory
 # file_path = "D:\\User\\Desktop\\Work\\downloads\\" # using (example) absolute path
-###Specify the shapefile country here
-shapename = "germany"
-###Specify the parameters here
-experiment = "ssp1_2_6" #1_2_6, 2_4_5, 5_8_5
-model = "hadgem3_gc31_ll"
-date = "2020-01-01/2060-12-31"
+###Specify the shapefile country. This will also determine output file names
+# shapename = "romania"
+# shapename = "finland"
+# shapename = "germany"
+###Make sure shapefiles are formatted in the form:
+### file_path + //attachments_WGS84// + shapename + //AOI// + shapename + _weather_aoi_WGS84.shp
+###Specify the experiment. The experiment will also determine output file names
+# experiment = "ssp1_2_6"
+# experiment = "ssp2_4_5"
+# experiment = "ssp5_8_5"
+###Specify the model
+# model = "hadgem3_gc31_ll"
+###Specify the range of dates as "YYYY-MM-DD/YYYY-MM-DD"
+# date = "2020-01-01/2060-12-31"
+
 
 
 def createcsv(file_path, shapename, experiment, model, date):
@@ -303,4 +317,4 @@ def createcsv(file_path, shapename, experiment, model, date):
                 os.remove(os.path.join(file_path,file))
     clean()
 
-createcsv(file_path, shapename, experiment, model, date)
+#createcsv(file_path, shapename, experiment, model, date)
