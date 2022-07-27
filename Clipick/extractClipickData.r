@@ -10,7 +10,7 @@ source("extractCoords/extractCoords.r")
 
 # specify here the path of python in your computer
 # the code works with python 2 but not with python 3
-use_python("C:/Python27") 
+use_python("C:/Python27")
 
 source_python("Clipick/clipick.py")
 
