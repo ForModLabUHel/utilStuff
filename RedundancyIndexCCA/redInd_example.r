@@ -3,8 +3,7 @@
 library(CCA)
 library(MASS)
 
-
-devtools::source_url('https://raw.githubusercontent.com/ForModLabUHel/utilStuff/blob/master/RedundancyIndexCCA/RdInd_calc.r')
+devtools::source_url("https://raw.githubusercontent.com/ForModLabUHel/utilStuff/master/RedundancyIndexCCA/RdInd_calc.r")
 
 
 # Generate Data (start)
