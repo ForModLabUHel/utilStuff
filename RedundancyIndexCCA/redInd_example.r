@@ -2,9 +2,9 @@
 # load library MASS
 library(CCA)
 library(MASS)
-library(devtools)
 
-source_url('https://raw.github.com/hadley/stringr/master/R/c.r')
+
+devtools::source_url('https://raw.githubusercontent.com/ForModLabUHel/utilStuff/blob/master/RedundancyIndexCCA/RdInd_calc.r')
 
 
 # Generate Data (start)
