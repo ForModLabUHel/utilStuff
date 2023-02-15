@@ -35,7 +35,7 @@ getWD <- function(site, shapeRast, res, sY=1951, sM=1, sD=1, eY=2100, eM=12, eD=
   if(class(shapeRast)=="RasterLayer"){
     myRaster <- shapeRast
   }else{
-    myRaster <- toRaster(site, shape, res)
+    myRaster <- toRaster(site, shapeRast, res)
   }
   grid_points <- rasterToPoints(myRaster)
   
@@ -102,14 +102,14 @@ getWDpoints <- function(coordPlots, sY=1951, sM=1, sD=1, eY=2100, eM=12, eD=31) 
 # uniqueWDs = unique weather data frames
 # wDs = all weather data frames
 # site = site name 
-# shape = shape object or raster of site
+# shapeRast = shape object or raster of site
 # res = resolution in m
 climRaster <- function(uniqueWDs, wDs, site, shapeRast, res) {
   
   if(class(shapeRast)=="RasterLayer"){
     myRaster <- shapeRast
   }else{
-    myRaster <- toRaster(site, shape, res)
+    myRaster <- toRaster(site, shapeRast, res)
   }
   
   grid_points <- rasterToPoints(myRaster)
