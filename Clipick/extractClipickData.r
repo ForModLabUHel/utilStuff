@@ -27,14 +27,16 @@ source_python("https://raw.githubusercontent.com/ForModLabUHel/utilStuff/master/
 # EndDay = 31
 
 
-# site = name of the site, shape = shape object, res = resolution in m
+# site = name of the site, shapeRast = shape object or Raster, res = resolution in m
 # sY = start year, sM = start month, sD = start day, eY = end year, eM = end month, eD = end day
-getWD <- function(site, shape, res, sY=1951, sM=1, sD=1, eY=2100, eM=12, eD=31) {
+getWD <- function(site, shapeRast, res, sY=1951, sM=1, sD=1, eY=2100, eM=12, eD=31) {
   # here we store the weather data
   wDs <- list()
-  
-  myRaster <- toRaster(site, shape, res)
-  
+  if(class(shapeRast)=="RasterLayer"){
+    myRaster <- shapeRast
+  }else{
+    myRaster <- toRaster(site, shape, res)
+  }
   grid_points <- rasterToPoints(myRaster)
   
   # this is the number of coordinate points
