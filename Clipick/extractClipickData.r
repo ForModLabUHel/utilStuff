@@ -6,13 +6,13 @@ library(tidyverse)
 library(sf)
 library(raster)
 
-source("extractCoords/extractCoords.r")
+source("https://raw.githubusercontent.com/ForModLabUHel/utilStuff/master/extractCoords/extractCoords.r")
 
 # specify here the path of python in your computer
 # the code works with python 2 but not with python 3
 use_python("C:/Python27")
 
-source_python("Clipick/clipick.py")
+source_python("https://raw.githubusercontent.com/ForModLabUHel/utilStuff/master/Clipick/clipick.py")
 
 # getWeatherData takes the following arguments in this order 
 # (location is always needed, all the others are optional): 
