@@ -132,14 +132,7 @@ climRaster <- function(uniqueWDs, wDs, site, shapeRast, res) {
   climID <- dfIDs
   rData <- data.frame(x, y, climID)
 
-  rData_sf <- st_as_sf(rData, coords=c("x", "y")) %>%
-  st_set_crs(4326)
-
-  climID_sf <- rData_sf[, "climID"]
-  climID_sp <- as(climID_sf, "Spatial")
-  gridded(climID_sp) = TRUE
-
-  climID_raster <- raster(climID_sp)
+  climID_raster <- rasterFromXYZ(rData,crs=myRaster) 
   
   return(climID_raster)
 }
