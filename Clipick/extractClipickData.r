@@ -213,6 +213,6 @@ prebasWeather <- function(wDs) {
     VPD[i,] <- wDs[[i]]$VPD
   }
   
-  save(TAir, Precip, PAR, VPD, CO2, file="outputs/weather.rdata")
+  save(TAir, Precip, PAR, VPD, CO2, file="weatherInputs/weather.rdata")
   
 }
