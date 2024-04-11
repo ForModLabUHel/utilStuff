@@ -20,14 +20,15 @@ RdInd_calc <- function(inputs, outputs){
   Rc <- ccaRes$cor
   ne <- ncol(outputs)
   nFactors <- ncol(inputs)
+  ncolX <- min(ne,nFactors)
   
-  RdOut <- matrix(0,ne,ne)
+  RdOut <- matrix(0,ne,ncolX)
   RdIn <- matrix(0,ne,nFactors)
   for(j in 1:ne) RdOut[j,] <- (ccaRes$scores$corr.Y.yscores[j,])^2 * (Rc)^2
   
   xx <- array(NA,dim=c(ne,ne,nFactors))
   for(j in 1:ne){
-    for(k in 1:ne){
+    for(k in 1:ncolX){
       xx[j,k,]=RdOut[j,k]*ccaRes$scores$corr.X.yscores[,k]^2
     }
   }

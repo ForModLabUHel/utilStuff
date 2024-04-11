@@ -1,7 +1,7 @@
-
-# load library MASS
+library(ggplot2)
 library(CCA)
 library(MASS)
+library(data.table)
 
 devtools::source_url("https://raw.githubusercontent.com/ForModLabUHel/utilStuff/master/RedundancyIndexCCA/RdInd_calc.r")
 
@@ -56,7 +56,7 @@ outputs <- cbind(sample_distribution[,4:5],
 #### calculate the redundancy indeces using the RdInd_calc function
 RdIn <- RdInd_calc(inputs, outputs)
 
-
+nFactors <- ncol(inputs)
 ##extract results and make some plot
 gg <- melt(data.table(t(RdIn),input=paste0("in",1:nFactors)),
            id.vars = "input",variable.name = "output",
