@@ -89,3 +89,5 @@ ggsave(
   dpi = 1000
 )
 
+plot(sobol.cue,choice=1)
+ggplot(sobol.cue, choice=1)
