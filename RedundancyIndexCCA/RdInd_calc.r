@@ -11,29 +11,59 @@
 #' @examples
 RdInd_calc <- function(inputs, outputs){
   require(CCA)
-  ccaRes <- cc(inputs, outputs)
+  if(ncol(inputs)>=ncol(outputs)){
+    X <- inputs
+    Y <- outputs
+    ijx <- TRUE
+  }else{
+    X <- outputs
+    Y <- inputs
+    ijx <- FALSE
+  }
+  
+  ccaRes <- cc(X, Y)
   
   ####calculate the redundancy index using the 
   # the canonical loadings of model outputs
   # the canonical cross-loadings of model inputs
   # canonical correlations
-  Rc <- ccaRes$cor
-  ne <- ncol(outputs)
-  nFactors <- ncol(inputs)
-  ncolX <- min(ne,nFactors)
+  if(ijx){
+    Rc <- ccaRes$cor
+    ne <- ncol(Y)
+    nFactors <- ncol(X)
+    ncolX <- ne#min(ne,nFactors)
   
-  RdOut <- matrix(0,ne,ncolX)
-  RdIn <- matrix(0,ne,nFactors)
-  for(j in 1:ne) RdOut[j,] <- (ccaRes$scores$corr.Y.yscores[j,])^2 * (Rc)^2
-  
-  xx <- array(NA,dim=c(ne,ncolX,nFactors))
-  for(j in 1:ne){
-    for(k in 1:ncolX){
-      xx[j,k,]=RdOut[j,k]*ccaRes$scores$corr.X.yscores[,k]^2
+    RdOut <- matrix(0,ne,ncolX)
+    RdIn <- matrix(0,ne,nFactors)
+    for(j in 1:ne) RdOut[j,] <- (ccaRes$scores$corr.Y.yscores[j,])^2 * (Rc)^2
+    xx <- array(NA,dim=c(ne,ncolX,nFactors))
+    for(j in 1:ne){
+      for(k in 1:ncolX){
+        xx[j,k,]=RdOut[j,k]*ccaRes$scores$corr.X.yscores[,k]^2
+      }
     }
-  }
-  RdIn <- apply(xx,c(1,3),sum)
-  colnames(RdIn) <- paste("input",1:nFactors)
-  rownames(RdIn) <- paste("output",1:ne)
+    RdIn <- apply(xx,c(1,3),sum)
+    colnames(RdIn) <- paste("input",1:nFactors)
+    rownames(RdIn) <- paste("output",1:ne)
+  }else{
+    Rc <- ccaRes$cor
+    ne <- ncol(X)
+    nFactors <- ncol(Y)
+    ncolX <- nFactors#min(ne,nFactors)
+    
+    RdOut <- matrix(0,ne,ncolX)
+    RdIn <- matrix(0,ne,nFactors)
+    for(j in 1:ne) RdOut[j,] <- (ccaRes$scores$corr.X.xscores[j,])^2 * (Rc)^2
+    xx <- array(NA,dim=c(ne,ncolX,nFactors))
+    for(j in 1:ne){
+      for(k in 1:ncolX){
+        xx[j,k,]=RdOut[j,k]*ccaRes$scores$corr.Y.xscores[,k]^2
+      }
+    }
+    RdIn <- apply(xx,c(1,3),sum)
+    colnames(RdIn) <- paste("input",1:nFactors)
+    rownames(RdIn) <- paste("output",1:ne)
+  } 
+  
   return(RdIn)  
 }
