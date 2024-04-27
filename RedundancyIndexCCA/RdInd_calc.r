@@ -21,7 +21,8 @@ RdInd_calc <- function(inputs, outputs){
     ijx <- FALSE
   }
   
-  ccaRes <- rcc(X, Y,lambda1=0.002, lambda2=0.002)
+  # ccaRes <- rcc(X, Y,lambda1=0.002, lambda2=0.002)
+  ccaRes <- cc(X, Y)
   
   ####calculate the redundancy index using the 
   # the canonical loadings of model outputs
